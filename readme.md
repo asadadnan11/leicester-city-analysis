@@ -49,31 +49,22 @@ This project explores **how** that happened — using data from previous Premier
 ## 📸 Visual Highlights
 
 <p float="left">
-  <img src="away_att.png" width="300"/>
-  <img src="away_att1.png" width="300"/>
-  <img src="away_def.png" width="300"/>
-  <img src="away_def1.png" width="300"/>
+  <img src="screenshots/away_att.png" width="300"/>
+  <img src="screenshots/away_att1.png" width="300"/>
+  <img src="screenshots/away_def.png" width="300"/>
+  <img src="screenshots/away_def1.png" width="300"/>
 </p>
 
 <p float="left">
-  <img src="home_att.png" width="300"/>
-  <img src="home_att1.png" width="300"/>
-  <img src="home_def.png" width="300"/>
-  <img src="home_def1.png" width="300"/>
+  <img src="screenshots/home_att.png" width="300"/>
+  <img src="screenshots/home_att1.png" width="300"/>
+  <img src="screenshots/home_def.png" width="300"/>
+  <img src="screenshots/home_def1.png" width="300"/>
 </p>
 
 ---
 
-## 📁 Folder Structure
-
-leicester-city-analysis/ 
-├── leicester_eda.qmd # Full analysis in R Markdown 
-├── leicester_eda.html # Rendered report with graphs 
-├── datasets/ # Historical EPL match data 
-├── readme.md # This file! 
-├── leicester_wrangling.pdf # Final presentation slides
-
-
+<pre> ## 📁 Folder Structure ``` leicester-city-analysis/ ├── leicester_eda.qmd # Full analysis in R Markdown ├── leicester_eda.html # Rendered report with graphs ├── datasets/ # Historical EPL match data ├── readme.md # This file! ├── leicester_wrangling.pdf # Final presentation slides ├── *.png # Visualizations (screenshots) ``` </pre>
 
 ---
 
