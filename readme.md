@@ -64,7 +64,16 @@ This project explores **how** that happened — using data from previous Premier
 
 ---
 
-<pre> ## 📁 Folder Structure ``` leicester-city-analysis/ ├── leicester_eda.qmd # Full analysis in R Markdown ├── leicester_eda.html # Rendered report with graphs ├── datasets/ # Historical EPL match data ├── readme.md # This file! ├── leicester_wrangling.pdf # Final presentation slides ├── *.png # Visualizations (screenshots) ``` </pre>
+<## 📁 Folder Structure 
+``` 
+leicester-city-analysis/ 
+├── leicester_eda.qmd # Full analysis in R Markdown 
+├── leicester_eda.html # Rendered report with graphs 
+├── datasets/ # Historical EPL match data 
+├── readme.md # This file! 
+├── leicester_wrangling.pdf # Final presentation slides 
+├── screenshots/ # Visualizations (screenshots) 
+```
 
 ---
 
