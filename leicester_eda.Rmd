@@ -1,0 +1,455 @@
+---
+title: "Premier League"
+author: "Asad Adnan"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    self_contained: yes
+    mode: selfcontained
+---
+
+## Introduction
+
+I intend to understand how, Leicester City FC, was able to win the Premier League title despite being promoted to it only 2 years ago.
+
+### Primary Questions
+What was Leicester City FC doing so special that made them achieve this great feat?
+
+## Data
+
+The data that I am using for this project can be accessed from [Kaggle](https://www.kaggle.com/datasets/saife245/english-premier-league) 
+
+```{r}
+full_premier_league <- read.csv("C:/Users/asada/Downloads/archive (7)/final_dataset.csv")
+
+premier_league1 <- read.csv("C:/Users/asada/Downloads/archive (7)/Datasets/2014-15.csv")
+
+premier_league_14 <- read.csv("C:/Users/asada/Downloads/archive (7)/Datasets/2014-15.csv")
+
+premier_league_13 <- read.csv("C:/Users/asada/Downloads/archive (7)/Datasets/2013-14.csv")
+
+premier_league_12 <- read.csv("C:/Users/asada/Downloads/archive (7)/Datasets/2012-13.csv")
+
+
+premier_league <- read.csv("C:/Users/asada/Downloads/archive (7)/Datasets/2015-16.csv")
+
+```
+
+There is never a reason for you to print an entire data frame within a document. If you want to provide something that can show your data, you can use the `paged_table` function:
+
+```{r}
+str(premier_league)
+
+##Leicester wins, losses and draws throughout the season
+leicester_home <- premier_league[premier_league$HomeTeam == "Leicester", ]
+
+nrow(leicester_home[leicester_home$FTR== "H", ]) #12 wins
+
+nrow(leicester_home[leicester_home$FTR== "D", ]) #6 draws
+
+nrow(leicester_home[leicester_home$FTR== "A", ]) #1 losses
+
+leicester_away <- premier_league[premier_league$AwayTeam == "Leicester", ]
+
+nrow(leicester_away[leicester_away$FTR== "H", ]) #2 losses
+
+nrow(leicester_away[leicester_away$FTR== "D", ]) #6 draws
+
+nrow(leicester_away[leicester_away$FTR== "A", ]) #11 wins
+
+##making Leicester bet data frame and statistics data frame
+leicester <- premier_league[premier_league$HomeTeam == "Leicester" | premier_league$AwayTeam == "Leicester", ]
+
+leicester_bet <- leicester[ , c(1:4,24:62)]
+
+leicester_stats <- leicester[ , c(1:23)]
+
+## average stats for all teams at home and away
+
+avg_home_stats <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                            data = premier_league, 
+                            FUN = mean)
+
+avg_away_stats <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                            data = premier_league, 
+                            FUN = mean)
+
+## graphs
+
+library(ggplot2)
+
+ggplot(avg_home_stats, aes(FTHG, HS, color=HomeTeam)) +
+  geom_point() +
+  theme_minimal()
+
+cor(avg_home_stats$FTHG, avg_home_stats$HS)
+
+ggplot(avg_home_stats, aes(FTAG, AS, color=HomeTeam)) +
+  geom_point() +
+  theme_minimal()
+
+cor(avg_home_stats$AS, avg_home_stats$FTAG)
+
+
+## leicester wins
+
+leicester_wins <- rbind(leicester_home[leicester_home$FTR== "H", ], leicester_away[leicester_away$FTR== "A", ])
+
+leicester_home$Date <- as.Date(leicester_home$Date, 
+                         format = "%d/%m/%Y")
+
+leicester_away$Date <- as.Date(leicester_away$Date, 
+                               format = "%d/%m/%Y")
+
+leicester_wins <- leicester_wins[order(leicester_wins$Date), ]
+
+##aggregated by full time results both home and away
+aggregated_stats_h <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam + FTR, 
+                              data = premier_league, 
+                              FUN = mean)
+aggregated_stats_a <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam + FTR, 
+                            data = premier_league, 
+                            FUN = mean)
+aggregated_home_wins <- aggregated_stats_h[aggregated_stats_h$FTR == "H", ]
+aggregated_away_wins <- aggregated_stats_a[aggregated_stats_a$FTR == "A", ]
+
+## graphs
+
+ggplot(aggregated_home_wins, aes(HomeTeam, HF)) +
+  geom_col() +
+  theme_minimal()
+
+aggregated_home_wins1 <- aggregated_home_wins[aggregated_home_wins$HomeTeam == "Man City" | aggregated_home_wins$HomeTeam== "Leicester" | aggregated_home_wins$HomeTeam == "Man United" | aggregated_home_wins$HomeTeam == "Chelsea", ]
+
+ggplot(aggregated_home_wins1, aes(FTAG, AS, color=HomeTeam))+
+  geom_point()+
+  theme_minimal()
+
+avg_home_stats_lim <- avg_home_stats[avg_home_stats$HomeTeam == "Leicester" | avg_home_stats$HomeTeam == "Arsenal" | avg_home_stats$HomeTeam == "Tottenham" | avg_home_stats$HomeTeam == "Man City" | avg_home_stats$HomeTeam == "Man United", ]
+
+ggplot(avg_home_stats_lim, aes(FTAG, AS, color=HomeTeam))+
+  geom_point()+
+  theme_minimal()
+
+avg_away_stats_lim <- avg_away_stats[avg_away_stats$AwayTeam == "Leicester" | avg_away_stats$AwayTeam == "Man City" | avg_away_stats$AwayTeam == "Man United" | avg_away_stats$AwayTeam == "Chelsea", ]
+
+ggplot(avg_away_stats_lim, aes(FTHG, HST, color=AwayTeam))+
+  geom_point()+
+  theme_minimal()
+
+library(ggplot2)
+
+ggplot(avg_home_stats_lim, aes(x = FTAG, y = AS, color = HomeTeam)) + 
+  geom_point(size = 5) +  
+  labs(title = "Home Games: Shots vs Goals Conceded",
+       x = "Average Goals Conceded", y = "Average Shots", 
+       color = "Home Team") +  
+  theme_minimal() +  
+  theme(
+    text = element_text(size = 12),  # Increase font size for better readability
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels if necessary
+    legend.position = "right"  # Adjust legend position
+  ) +
+  scale_color_manual(values = c("Arsenal" = "red", 
+                                "Leicester" = "blue", 
+                                "Tottenham" = "black",
+                                "Man United" = "green",
+                                "Man City" = "purple"))  # Set distinct colors for teams
+
+```
+
+
+
+```{r}
+## goal difference in home games
+aggregated_home_wins <- as.numeric(FTHG)
+colnames(aggregated_home_wins)
+aggregated_home_wins$gd <- aggregated_home_wins$FTHG - aggregated_home_wins$FTAG
+aggregated_home_wins <- aggregated_home_wins[order(aggregated_home_wins$gd, decreasing =T), ]
+head(aggregated_home_wins, 10)
+
+winning_margins <- data.frame(aggregated_home_wins$HomeTeam, aggregated_home_wins$gd)
+colnames(winning_margins)[1] <- "HomeTeam"
+colnames(winning_margins)[2] <- "Average Goal Difference"
+
+##goal difference in away games
+aggregated_home_wins <- as.numeric(FTHG)
+colnames(aggregated_home_wins)
+aggregated_away_wins$gd <- aggregated_away_wins$FTAG - aggregated_away_wins$FTHG
+aggregated_away_wins <- aggregated_away_wins[order(aggregated_away_wins$gd, decreasing =T), ]
+head(aggregated_away_wins, 10)
+View(winning_margins_away)
+winning_margins_away <- data.frame(aggregated_away_wins$AwayTeam, aggregated_away_wins$gd)
+colnames(winning_margins_away)[1] <- "AwayTeam"
+colnames(winning_margins_away)[2] <- "Average Goal Difference"
+
+#away games comparison
+
+avg_away_stats <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                            data = premier_league, 
+                            FUN = mean)
+
+avg_away_stats_lim <- avg_away_stats[avg_away_stats$AwayTeam == "Leicester" |
+                                       avg_away_stats$AwayTeam == "Man City" |
+                                       avg_away_stats$AwayTeam == "Man United" |
+                                       avg_away_stats$AwayTeam == "Arsenal" |
+                                       avg_away_stats$AwayTeam == "Tottenham", ]
+
+ggplot(avg_away_stats_lim, aes(x = FTAG, y = AST, color = AwayTeam)) + 
+  geom_point(size = 5) +  
+  labs(title = "Away Games: Shots vs Goals Scored",
+       x = "Average Goals Scored", y = "Average Shots", 
+       color = "Away Team") +  
+  theme_minimal() +  
+  theme(
+    text = element_text(size = 12),  
+    axis.text.x = element_text(angle = 45, hjust = 1),  
+    legend.position = "right"  
+  ) +
+  scale_color_manual(values = c("Arsenal" = "red", 
+                                "Leicester" = "blue", 
+                                "Tottenham" = "black",
+                                "Man United" = "green",
+                                "Man City" = "purple"))
+
+premier_league_full <- rbind(premier_league_12_15h, premier_league_12_15away)
+
+view(premier_league_full)
+
+colnames(premier_league_12_15h)[2] <- "Team"
+
+colnames(premier_league_12_15away)[2] <- "Team"
+
+
+prem_full <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ Team + Year, 
+                       data = premier_league_full, 
+                       FUN = mean)
+
+ggplot(prem_full, aes(x = Year)) + 
+  geom_line(aes(y = HST, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTHG, color = "Goals"), size = 1) + 
+  facet_wrap(~ Team) +  # Facet by Team
+  labs(title = "Home Games: Average Shots and Goals Scored Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal()
+
+```
+
+
+
+```{r}
+## aggregating away stats from previous years for comparison with 2015/16 season
+avg_away_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                              data = premier_league_14, 
+                              FUN = mean)
+
+avg_away_stats13 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                              data = premier_league_13, 
+                              FUN = mean)
+
+avg_away_stats12 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                              data = premier_league_12, 
+                              FUN = mean)
+
+
+premier_league_home15a <-  rbind(avg_away_stats[avg_away_stats$AwayTeam == "Man City", ], 
+                                 avg_away_stats[avg_away_stats$AwayTeam == "Man United", ], 
+                                 avg_away_stats[avg_away_stats$AwayTeam == "Chelsea", ], 
+                                 avg_away_stats[avg_away_stats$AwayTeam == "Leicester", ])
+
+premier_league_home14a <-  rbind(avg_away_stats14[avg_away_stats14$AwayTeam == "Man City", ], 
+                                 avg_away_stats14[avg_away_stats14$AwayTeam == "Man United", ], 
+                                 avg_away_stats14[avg_away_stats14$AwayTeam == "Chelsea", ], 
+                                 avg_away_stats14[avg_away_stats14$AwayTeam == "Leicester", ])
+
+premier_league_home13a <-  rbind(avg_away_stats13[avg_away_stats13$AwayTeam == "Man City", ], 
+                                 avg_away_stats13[avg_away_stats13$AwayTeam == "Man United", ], 
+                                 avg_away_stats13[avg_away_stats13$AwayTeam == "Chelsea", ], 
+                                 avg_away_stats13[avg_away_stats13$AwayTeam == "Leicester", ])
+
+premier_league_home12a <-    rbind(avg_away_stats12[avg_away_stats12$AwayTeam == "Man United", ], 
+                                   avg_away_stats12[avg_away_stats12$AwayTeam == "Man City", ], 
+                                   avg_away_stats12[avg_away_stats12$AwayTeam == "Chelsea", ], 
+                                   avg_away_stats12[avg_away_stats12$AwayTeam == "Leicester", ])
+
+Year <- rep(2015,4)
+premier_league_home15a <- cbind(Year, premier_league_home15a)
+
+Year <- rep(2014,4)
+premier_league_home14a <- cbind(Year, premier_league_home14a)
+
+Year <- rep(2013,3)
+premier_league_home13a <- cbind(Year, premier_league_home13a)
+
+Year <- rep(2012,3)
+premier_league_home12a <- cbind(Year, premier_league_home12a)
+
+
+premier_league_12_15a <- rbind(premier_league_home15a, premier_league_home14a, premier_league_home13a, premier_league_home12a)
+
+View(premier_league_12_15a)
+
+
+
+##making graphs
+ggplot(premier_league_12_15a, aes(x = Year)) + 
+  geom_line(aes(y = AS, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTAG, color = "Goals"), size = 1) + 
+  facet_wrap(~ AwayTeam) +  # Facet by Team
+  labs(title = "Away Games: Average Shots and Goals Scored Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal()
+
+
+ggplot(premier_league_12_15a, aes(x = Year)) + 
+  geom_line(aes(y = HS, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTHG, color = "Goals"), size = 1) + 
+  facet_wrap(~ AwayTeam) +  # Facet by Team
+  labs(title = "Away Games: Average Shots and Goals Conceded Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal() 
+
+
+premier_league_12_15away <- premier_league_12_15a[premier_league_12_15a$Year == "2015" | premier_league_12_15a$Year == "2014", ]
+
+premier_league_12_15away$Year <- as.Date(premier_league_12_15away$Year, format = "%Y")
+
+ggplot(premier_league_12_15away, aes(x = Year)) + 
+  geom_line(aes(y = AS, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTAG, color = "Goals"), size = 1) + 
+  facet_wrap(~ AwayTeam) +  # Facet by Team
+  labs(title = "Away Games: Average Shots and Goals Scored Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal() +
+  scale_x_continuous(breaks = seq(2014, 2015, by = 1))
+
+
+
+full_home_stats <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                             data = full_premier_league, 
+                             FUN = mean)
+
+## aggregating data from 2014/15
+avg_home_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                              data = premier_league1, 
+                              FUN = mean)
+
+avg_away_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                              data = premier_league1, 
+                              FUN = mean)
+
+
+##aggregating previous seasons for comparison with the 2015/16 season
+
+avg_home_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                              data = premier_league_14, 
+                              FUN = mean)
+
+
+avg_home_stats13 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                              data = premier_league_13, 
+                              FUN = mean)
+
+avg_home_stats12 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                              data = premier_league_12, 
+                              FUN = mean)
+
+#making a new data frame to compare teams of interest
+premier_league_home15 <-  rbind(avg_home_stats[avg_home_stats$HomeTeam == "Man City", ], 
+                                avg_home_stats[avg_home_stats$HomeTeam == "Man United", ], 
+                                avg_home_stats[avg_home_stats$HomeTeam == "Chelsea", ], 
+                                avg_home_stats[avg_home_stats$HomeTeam == "Leicester", ])
+
+premier_league_home14 <-  rbind(avg_home_stats14[avg_home_stats14$HomeTeam == "Man City", ], 
+                                avg_home_stats14[avg_home_stats14$HomeTeam == "Man United", ], 
+                                avg_home_stats14[avg_home_stats14$HomeTeam == "Chelsea", ], 
+                                avg_home_stats14[avg_home_stats14$HomeTeam == "Leicester", ])
+
+premier_league_home13 <-  rbind(avg_home_stats13[avg_home_stats13$HomeTeam == "Man City", ], 
+                                avg_home_stats13[avg_home_stats13$HomeTeam == "Man United", ], 
+                                avg_home_stats13[avg_home_stats13$HomeTeam == "Chelsea", ], 
+                                avg_home_stats13[avg_home_stats13$HomeTeam == "Leicester", ])
+
+premier_league_home12 <-    rbind(avg_home_stats12[avg_home_stats12$HomeTeam == "Man United", ], 
+                                  avg_home_stats12[avg_home_stats12$HomeTeam == "Man City", ], 
+                                  avg_home_stats12[avg_home_stats12$HomeTeam == "Chelsea", ], 
+                                  avg_home_stats12[avg_home_stats12$HomeTeam == "Leicester", ])
+
+
+Year <- rep(2015,4)
+premier_league_home15 <- cbind(Year, premier_league_home15)
+
+Year <- rep(2014,4)
+premier_league_home14 <- cbind(Year, premier_league_home14)
+
+Year <- rep(2013,3)
+premier_league_home13 <- cbind(Year, premier_league_home13)
+
+Year <- rep(2012,3)
+premier_league_home12 <- cbind(Year, premier_league_home12)
+
+premier_league_12_15 <- rbind(premier_league_home15, premier_league_home14, premier_league_home13, premier_league_home12)
+
+str(premier_league_12_15)
+
+str(premier_league)
+
+ggplot(premier_league_12_15, aes(Year, HST, color=HomeTeam)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal()
+
+ggplot(premier_league_12_15, aes(FTAG, AST, color=HomeTeam)) +
+  geom_point() +
+  geom_line() +
+  theme_minimal()
+
+premier_league_12_15h <- premier_league_12_15[premier_league_12_15$Year == "2015" | premier_league_12_15$Year == "2014", ]
+
+# Line Plot for Shots and Goals Scored with faceting by Team
+ggplot(premier_league_12_15, aes(x = Year)) + 
+  geom_line(aes(y = HST, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTHG, color = "Goals"), size = 1) + 
+  facet_wrap(~ HomeTeam) +  # Facet by Team
+  labs(title = "Home Games: Average Shots and Goals Scored Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal()
+
+
+# Line Plot for Shots and Goals with faceting by Team
+ggplot(premier_league_12_15, aes(x = Year)) + 
+  geom_line(aes(y = AS, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTAG, color = "Goals"), size = 1) + 
+  facet_wrap(~ HomeTeam) +  # Facet by Team
+  labs(title = "Home Games: Average Shots and Goals Conceded Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal()
+
+
+ggplot(premier_league_12_15h, aes(x = Year)) + 
+  geom_line(aes(y = AS, color = "Shots"), size = 1) + 
+  geom_line(aes(y = FTAG, color = "Goals"), size = 1) + 
+  facet_wrap(~ HomeTeam) +  # Facet by Team
+  labs(title = "Home Games: Average Shots and Goals Conceded Over Years",
+       y = "Average Value", 
+       color = "Metric") +
+  theme_minimal() +
+  scale_x_continuous(breaks = seq(2014, 2015, by = 1))
+
+## aggregating data from 2014/15
+avg_home_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ HomeTeam, 
+                              data = premier_league1, 
+                              FUN = mean)
+
+avg_away_stats14 <- aggregate(cbind(FTHG, FTAG, HS, AS, HST, AST, HF, AF, HC, AC, HY, AY, HR, AR) ~ AwayTeam, 
+                              data = premier_league1, 
+                              FUN = mean)
+```
+
